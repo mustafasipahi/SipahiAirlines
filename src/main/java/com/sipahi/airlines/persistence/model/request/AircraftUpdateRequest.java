@@ -13,13 +13,15 @@ import javax.validation.constraints.NotNull;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateUpdateRequest {
+public class AircraftUpdateRequest {
 
     @NotNull(message = "Flight externalId id cannot be null")
     @NotEmpty(message = "Flight externalId id cannot be empty")
     private String externalId;
 
     private String name;
-    private Integer passengerCount;
+    private Integer economyRowCount;
+    private Integer vipRowCount;
+    private Integer seatsPerRow;
     private AircraftStatus status;
 }

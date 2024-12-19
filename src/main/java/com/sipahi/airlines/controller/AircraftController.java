@@ -2,7 +2,7 @@ package com.sipahi.airlines.controller;
 
 import com.sipahi.airlines.persistence.model.dto.AircraftDto;
 import com.sipahi.airlines.persistence.model.request.AircraftCreateRequest;
-import com.sipahi.airlines.persistence.model.request.UpdateUpdateRequest;
+import com.sipahi.airlines.persistence.model.request.AircraftUpdateRequest;
 import com.sipahi.airlines.persistence.model.response.AircraftCreateResponse;
 import com.sipahi.airlines.service.AircraftService;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class AircraftController {
     }
 
     @PutMapping("/update")
-    public void update(@Valid @RequestBody UpdateUpdateRequest request) {
+    public void update(@Valid @RequestBody AircraftUpdateRequest request) {
         aircraftService.update(request);
     }
 

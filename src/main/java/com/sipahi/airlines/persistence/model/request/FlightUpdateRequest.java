@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -23,4 +24,6 @@ public class FlightUpdateRequest {
     private String description;
     private String aircraftId;
     private LocalDateTime flightDate;
+    private BigDecimal vipAmount;
+    private BigDecimal economyAmount;
 }

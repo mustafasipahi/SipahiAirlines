@@ -12,7 +12,9 @@ public class AircraftConverter {
         return AircraftDto.builder()
                 .externalId(entity.getExternalId())
                 .name(entity.getName())
-                .passengerCount(entity.getPassengerCount())
+                .economyRowCount(entity.getEconomyRowCount())
+                .vipRowCount(entity.getVipRowCount())
+                .seatsPerRow(entity.getSeatsPerRow())
                 .build();
     }
 }

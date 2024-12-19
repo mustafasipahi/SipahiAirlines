@@ -27,6 +27,13 @@ redis:
   host: localhost
   port: 6379
 
+kafka:
+  topic:
+    saveFlightAmount: save-flight-amount
+    updateFlightAmount: update-flight-amount
+  groupId: airlines-group
+  address: localhost:9093
+
 cache-time:
   flightDetailCacheMinute: 10
   aircraftDetailCacheMinute: 20

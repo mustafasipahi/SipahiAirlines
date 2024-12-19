@@ -1,0 +1,21 @@
+package com.sipahi.airlines.persistence.model.event;
+
+import com.sipahi.airlines.persistence.mysql.entity.FlightEntity;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class FlightAmountCreateEvent implements Serializable {
+
+    private BigDecimal vipAmount;
+    private BigDecimal economyAmount;
+    private FlightEntity flight;
+}

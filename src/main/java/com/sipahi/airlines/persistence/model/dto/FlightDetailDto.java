@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -23,4 +24,5 @@ public class FlightDetailDto implements Serializable {
     private String description;
     private LocalDateTime flightDate;
     private FlightAmountDto amount;
+    private List<FlightSeatDto> seats;
 }

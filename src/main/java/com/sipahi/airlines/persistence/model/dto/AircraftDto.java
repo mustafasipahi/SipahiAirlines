@@ -19,5 +19,7 @@ public class AircraftDto implements Serializable {
 
     private String externalId;
     private String name;
-    private Integer passengerCount;
+    private int economyRowCount;
+    private int vipRowCount;
+    private int seatsPerRow;
 }

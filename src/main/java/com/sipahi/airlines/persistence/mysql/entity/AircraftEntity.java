@@ -28,7 +28,13 @@ public class AircraftEntity implements Serializable {
     private String name;
 
     @Column(nullable = false)
-    private Integer passengerCount;
+    private int economyRowCount;
+
+    @Column(nullable = false)
+    private int vipRowCount;
+
+    @Column(nullable = false)
+    private int seatsPerRow;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

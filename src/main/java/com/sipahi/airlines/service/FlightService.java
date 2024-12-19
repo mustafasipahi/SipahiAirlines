@@ -36,10 +36,12 @@ import static com.sipahi.airlines.util.FlightNumberUtil.generateFlightNumber;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class FlightPersistenceService {
+public class FlightService {
 
     private final FlightRepository flightRepository;
     private final AircraftService aircraftService;
+    private final FlightConverter flightConverter;
+    private final FlightAmountService flightAmountService;
     private final FlightCreateValidator createValidator;
     private final FlightUpdateValidator updateValidator;
     private final FlightDeleteValidator deleteValidator;
@@ -57,6 +59,7 @@ public class FlightPersistenceService {
         flightEntity.setStatus(FlightStatus.CREATED);
         FlightEntity savedFlightEntity = flightRepository.save(flightEntity);
         log.info("Saved new flight: {}", savedFlightEntity.getFlightNumber());
+        flightAmountService.createFlightAmount(savedFlightEntity, request);
         return FlightCreateResponse.builder()
                 .flightNumber(savedFlightEntity.getFlightNumber())
                 .build();
@@ -78,6 +81,8 @@ public class FlightPersistenceService {
                 .orElse(flightEntity.getFlightDate()));
         FlightEntity updatedFlightEntity = flightRepository.save(flightEntity);
         log.info("Updated flight: {}", updatedFlightEntity.getFlightNumber());
+        flightAmountService.updateFlightAmount(updatedFlightEntity.getId(), request);
+
     }
 
     @Transactional
@@ -101,11 +106,18 @@ public class FlightPersistenceService {
         log.info("Activated flight: {}", activatedFlightEntity.getFlightNumber());
     }
 
+    @Transactional
     @Cacheable(value = FLIGHT_DETAIL, key = "#flightNumber")
     public FlightDetailDto getDetail(String flightNumber) {
         return flightRepository.findByFlightNumber(flightNumber)
                 .filter(flightEntity -> flightEntity.getStatus().equals(FlightStatus.CREATED))
-                .map(FlightConverter::toDetailDto)
+                .map(flightConverter::toDetailDto)
+                .orElseThrow(FlightNotFoundException::new);
+    }
+
+    @Transactional
+    public FlightEntity getLockedDetail(String flightNumber) {
+        return flightRepository.findByFlightNumberForWrite(flightNumber, FlightStatus.AVAILABLE)
                 .orElseThrow(FlightNotFoundException::new);
     }
 
@@ -114,6 +126,6 @@ public class FlightPersistenceService {
         Sort sort = Sort.by(request.getDirection(), request.getSort());
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
         return flightRepository.findAll(specification, pageable)
-                .map(FlightConverter::toDto);
+                .map(flightConverter::toDto);
     }
 }

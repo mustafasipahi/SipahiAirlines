@@ -14,10 +14,16 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 public class AircraftCreateRequest {
 
-    @NotNull(message = "Flight externalId id cannot be null")
-    @NotEmpty(message = "Flight externalId id cannot be empty")
+    @NotNull(message = "Flight name cannot be null")
+    @NotEmpty(message = "Flight name cannot be empty")
     private String name;
 
-    @NotNull(message = "Flight externalId id cannot be null")
-    private Integer passengerCount;
+    @NotNull(message = "Flight economyRowCount cannot be null")
+    private Integer economyRowCount;
+
+    @NotNull(message = "Flight vipRowCount cannot be null")
+    private Integer vipRowCount;
+
+    @NotNull(message = "Flight seatsPerRow cannot be null")
+    private Integer seatsPerRow;
 }

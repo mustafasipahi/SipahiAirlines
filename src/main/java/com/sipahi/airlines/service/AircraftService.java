@@ -6,7 +6,7 @@ import com.sipahi.airlines.enums.AircraftStatus;
 import com.sipahi.airlines.persistence.mysql.entity.AircraftEntity;
 import com.sipahi.airlines.persistence.model.dto.AircraftDto;
 import com.sipahi.airlines.persistence.model.request.AircraftCreateRequest;
-import com.sipahi.airlines.persistence.model.request.UpdateUpdateRequest;
+import com.sipahi.airlines.persistence.model.request.AircraftUpdateRequest;
 import com.sipahi.airlines.persistence.model.response.AircraftCreateResponse;
 import com.sipahi.airlines.persistence.mysql.repository.AircraftRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,11 +31,14 @@ public class AircraftService {
 
     private final AircraftRepository aircraftRepository;
 
+    @Transactional
     public AircraftCreateResponse create(AircraftCreateRequest request) {
         AircraftEntity aircraftEntity = new AircraftEntity();
         aircraftEntity.setExternalId(UUID.randomUUID().toString());
         aircraftEntity.setName(request.getName());
-        aircraftEntity.setPassengerCount(request.getPassengerCount());
+        aircraftEntity.setEconomyRowCount(request.getEconomyRowCount());
+        aircraftEntity.setVipRowCount(request.getVipRowCount());
+        aircraftEntity.setSeatsPerRow(request.getSeatsPerRow());
         AircraftEntity savedAircraft = aircraftRepository.save(aircraftEntity);
         log.info("Saved aircraft id: {} external id: {}", savedAircraft.getId(), savedAircraft.getExternalId());
         return AircraftCreateResponse.builder()
@@ -43,13 +47,17 @@ public class AircraftService {
     }
 
     @CacheEvict(value = AIRCRAFT_DETAIL, key = "#request.externalId")
-    public void update(UpdateUpdateRequest request) {
+    public void update(AircraftUpdateRequest request) {
         AircraftEntity aircraftEntity = aircraftRepository.findByExternalId(request.getExternalId())
                 .orElseThrow(AircraftNotFoundException::new);
         aircraftEntity.setName(Optional.ofNullable(request.getName())
                 .orElse(aircraftEntity.getName()));
-        aircraftEntity.setPassengerCount(Optional.ofNullable(request.getPassengerCount())
-                .orElse(aircraftEntity.getPassengerCount()));
+        aircraftEntity.setEconomyRowCount(Optional.ofNullable(request.getEconomyRowCount())
+                .orElse(aircraftEntity.getEconomyRowCount()));
+        aircraftEntity.setVipRowCount(Optional.ofNullable(request.getVipRowCount())
+                .orElse(aircraftEntity.getVipRowCount()));
+        aircraftEntity.setSeatsPerRow(Optional.ofNullable(request.getSeatsPerRow())
+                .orElse(aircraftEntity.getSeatsPerRow()));
         aircraftEntity.setStatus(Optional.ofNullable(request.getStatus())
                 .orElse(aircraftEntity.getStatus()));
         AircraftEntity updatedAircraft = aircraftRepository.save(aircraftEntity);
