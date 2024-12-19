@@ -19,8 +19,12 @@ public class FlightCreateRequest {
     @NotEmpty(message = "Flight name cannot be empty")
     private String name;
 
-    @NotNull(message = "Flight name cannot be null")
-    @NotEmpty(message = "Flight name cannot be empty")
+    @NotNull(message = "Flight description cannot be null")
+    @NotEmpty(message = "Flight description cannot be empty")
+    private String description;
+
+    @NotNull(message = "Flight aircraft id cannot be null")
+    @NotEmpty(message = "Flight aircraft id cannot be empty")
     private String aircraftId;
 
     @NotNull(message = "Flight flight date cannot be null")

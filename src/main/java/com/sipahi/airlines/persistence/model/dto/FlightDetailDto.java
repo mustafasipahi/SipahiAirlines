@@ -14,9 +14,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class FlightDto implements Serializable {
+public class FlightDetailDto implements Serializable {
 
-    private static final long serialVersionUID = 8010945412154491278L;
+    private static final long serialVersionUID = 3725646387284733354L;
 
     private String flightNumber;
     private String name;

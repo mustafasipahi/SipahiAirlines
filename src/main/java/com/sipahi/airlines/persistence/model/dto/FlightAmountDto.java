@@ -7,20 +7,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class FlightDto implements Serializable {
+public class FlightAmountDto implements Serializable {
 
-    private static final long serialVersionUID = 8010945412154491278L;
+    private static final long serialVersionUID = 3369469544455238680L;
 
-    private String flightNumber;
-    private String name;
-    private String description;
-    private LocalDateTime flightDate;
-    private FlightAmountDto amount;
+    private BigDecimal economy;
+    private BigDecimal vip;
 }

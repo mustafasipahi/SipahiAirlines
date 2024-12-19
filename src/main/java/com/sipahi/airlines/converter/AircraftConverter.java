@@ -1,6 +1,6 @@
 package com.sipahi.airlines.converter;
 
-import com.sipahi.airlines.persistence.entity.AircraftEntity;
+import com.sipahi.airlines.persistence.mysql.entity.AircraftEntity;
 import com.sipahi.airlines.persistence.model.dto.AircraftDto;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

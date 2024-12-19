@@ -1,6 +1,7 @@
-package com.sipahi.airlines.persistence.specification;
+package com.sipahi.airlines.persistence.mysql.specification;
 
-import com.sipahi.airlines.persistence.entity.FlightEntity;
+import com.sipahi.airlines.enums.FlightStatus;
+import com.sipahi.airlines.persistence.mysql.entity.FlightEntity;
 import com.sipahi.airlines.persistence.model.request.FlightSearchRequest;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,7 @@ public class FlightSpecification {
             if (request.getFlightNumber() != null) {
                 predicates.add(criteriaBuilder.equal(root.get("flightNumber"), request.getFlightNumber()));
             }
+            predicates.add(criteriaBuilder.equal(root.get("status"), FlightStatus.AVAILABLE));
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }

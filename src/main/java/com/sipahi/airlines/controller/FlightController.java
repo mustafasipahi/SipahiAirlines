@@ -1,5 +1,6 @@
 package com.sipahi.airlines.controller;
 
+import com.sipahi.airlines.persistence.model.dto.FlightDetailDto;
 import com.sipahi.airlines.persistence.model.dto.FlightDto;
 import com.sipahi.airlines.persistence.model.request.FlightCreateRequest;
 import com.sipahi.airlines.persistence.model.request.FlightSearchRequest;
@@ -29,8 +30,18 @@ public class FlightController {
         flightPersistenceService.update(request);
     }
 
+    @DeleteMapping("/{flightNumber}")
+    public void delete(@PathVariable String flightNumber) {
+        flightPersistenceService.delete(flightNumber);
+    }
+
+    @PutMapping("/{flightNumber}")
+    public void activate(@PathVariable String flightNumber) {
+        flightPersistenceService.activate(flightNumber);
+    }
+
     @GetMapping("/{flightNumber}")
-    public FlightDto getDetail(@PathVariable String flightNumber) {
+    public FlightDetailDto getDetail(@PathVariable String flightNumber) {
         return flightPersistenceService.getDetail(flightNumber);
     }
 

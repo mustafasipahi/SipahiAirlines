@@ -1,5 +1,6 @@
 package com.sipahi.airlines.persistence.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,6 +12,7 @@ import java.io.Serializable;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class AircraftDto implements Serializable {
 
     private static final long serialVersionUID = 8000184504349410869L;

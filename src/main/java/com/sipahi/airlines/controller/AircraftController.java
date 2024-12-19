@@ -1,12 +1,14 @@
 package com.sipahi.airlines.controller;
 
 import com.sipahi.airlines.persistence.model.dto.AircraftDto;
+import com.sipahi.airlines.persistence.model.request.AircraftCreateRequest;
+import com.sipahi.airlines.persistence.model.request.UpdateUpdateRequest;
+import com.sipahi.airlines.persistence.model.response.AircraftCreateResponse;
 import com.sipahi.airlines.service.AircraftService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -15,6 +17,16 @@ import java.util.List;
 public class AircraftController {
 
     private final AircraftService aircraftService;
+
+    @PostMapping("/create")
+    public AircraftCreateResponse create(@Valid @RequestBody AircraftCreateRequest request) {
+        return aircraftService.create(request);
+    }
+
+    @PutMapping("/update")
+    public void update(@Valid @RequestBody UpdateUpdateRequest request) {
+        aircraftService.update(request);
+    }
 
     @GetMapping
     public List<AircraftDto> getAll() {

@@ -1,6 +1,6 @@
-package com.sipahi.airlines.persistence.repository;
+package com.sipahi.airlines.persistence.mysql.repository;
 
-import com.sipahi.airlines.persistence.entity.FlightEntity;
+import com.sipahi.airlines.persistence.mysql.entity.FlightEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;

@@ -1,4 +1,4 @@
-package com.sipahi.airlines.persistence.entity;
+package com.sipahi.airlines.persistence.mysql.entity;
 
 import com.sipahi.airlines.enums.FlightStatus;
 import lombok.Getter;
@@ -30,6 +30,9 @@ public class FlightEntity {
     private String name;
 
     @Column(nullable = false)
+    private String description;
+
+    @Column(nullable = false)
     private LocalDateTime flightDate;
 
     @Column(nullable = false)
@@ -38,12 +41,13 @@ public class FlightEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "aircraft_id")
-    private AircraftEntity aircraftEntity;
+    private AircraftEntity aircraft;
 
-    @ManyToMany
-    @JoinTable(name = "flight_user",
-               joinColumns = @JoinColumn(name = "flight_id"),
-               inverseJoinColumns = @JoinColumn(name = "user_id"))
+    @OneToOne(mappedBy = "flight", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private FlightAmountEntity amount;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "flight_user")
     private Set<UserEntity> users = new HashSet<>();
 
     @CreatedDate

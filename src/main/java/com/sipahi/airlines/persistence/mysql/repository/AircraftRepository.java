@@ -1,7 +1,7 @@
-package com.sipahi.airlines.persistence.repository;
+package com.sipahi.airlines.persistence.mysql.repository;
 
 import com.sipahi.airlines.enums.AircraftStatus;
-import com.sipahi.airlines.persistence.entity.AircraftEntity;
+import com.sipahi.airlines.persistence.mysql.entity.AircraftEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

@@ -1,8 +1,8 @@
 package com.sipahi.airlines.commandline;
 
 import com.sipahi.airlines.enums.AircraftStatus;
-import com.sipahi.airlines.persistence.entity.AircraftEntity;
-import com.sipahi.airlines.persistence.repository.AircraftRepository;
+import com.sipahi.airlines.persistence.mysql.entity.AircraftEntity;
+import com.sipahi.airlines.persistence.mysql.repository.AircraftRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
