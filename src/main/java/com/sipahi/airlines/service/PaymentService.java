@@ -1,7 +1,7 @@
 package com.sipahi.airlines.service;
 
 import com.sipahi.airlines.advice.exception.InsufficientAmountException;
-import com.sipahi.airlines.advice.exception.SeatNotFoundException;
+import com.sipahi.airlines.advice.exception.SeatAvailableFoundException;
 import com.sipahi.airlines.enums.FlightSeatStatus;
 import com.sipahi.airlines.enums.TestAccountType;
 import com.sipahi.airlines.persistence.model.dto.AccountDto;
@@ -55,7 +55,7 @@ public class PaymentService {
                 .filter(seatDocument -> seatDocument.getSeatNo().equals(seatNo))
                 .filter(seatDocument -> seatDocument.getStatus().equals(FlightSeatStatus.AVAILABLE))
                 .findFirst()
-                .orElseThrow(SeatNotFoundException::new);
+                .orElseThrow(SeatAvailableFoundException::new);
     }
 
     private void validateAmount(BigDecimal accountAmount, BigDecimal flightAmount) {

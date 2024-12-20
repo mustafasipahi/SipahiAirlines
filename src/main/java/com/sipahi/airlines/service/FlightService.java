@@ -52,9 +52,9 @@ public class FlightService {
         flightEntity.setFlightDate(request.getFlightDate());
         flightEntity.setStatus(FlightStatus.CREATED);
         FlightEntity savedFlightEntity = flightRepository.save(flightEntity);
-        log.info("Saved new flight: {}", savedFlightEntity.getFlightNumber());
         flightAmountService.createFlightAmount(savedFlightEntity.getId(), request);
         elasticSearchService.saveFlightEvent(flightEntity);
+        log.info("Saved new flight: {}", savedFlightEntity.getFlightNumber());
         return FlightCreateResponse.builder()
                 .flightNumber(savedFlightEntity.getFlightNumber())
                 .build();
@@ -76,9 +76,9 @@ public class FlightService {
         flightEntity.setFlightDate(Optional.ofNullable(request.getFlightDate())
                 .orElse(flightEntity.getFlightDate()));
         FlightEntity updatedFlightEntity = flightRepository.save(flightEntity);
-        log.info("Updated flight: {}", updatedFlightEntity.getFlightNumber());
         flightAmountService.updateFlightAmount(updatedFlightEntity.getId(), request);
         elasticSearchService.saveFlightEvent(flightEntity);
+        log.info("Updated flight: {}", updatedFlightEntity.getFlightNumber());
     }
 
     @Transactional
@@ -88,8 +88,9 @@ public class FlightService {
                 .orElseThrow(FlightNotFoundException::new);
         deleteValidator.validate(flightEntity);
         flightEntity.setStatus(FlightStatus.DELETED);
-        FlightEntity updatedFlightEntity = flightRepository.save(flightEntity);
-        log.info("Deleted flight: {}", updatedFlightEntity.getFlightNumber());
+        FlightEntity deletedFlightEntity = flightRepository.save(flightEntity);
+        elasticSearchService.saveFlightEvent(flightEntity);
+        log.info("Deleted flight: {}", deletedFlightEntity.getFlightNumber());
     }
 
     @Transactional
@@ -99,6 +100,7 @@ public class FlightService {
         activateValidator.validate(flightEntity);
         flightEntity.setStatus(FlightStatus.AVAILABLE);
         FlightEntity activatedFlightEntity = flightRepository.save(flightEntity);
+        elasticSearchService.saveFlightEvent(flightEntity);
         log.info("Activated flight: {}", activatedFlightEntity.getFlightNumber());
     }
 
