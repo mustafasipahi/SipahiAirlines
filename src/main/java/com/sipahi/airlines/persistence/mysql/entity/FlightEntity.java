@@ -9,8 +9,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -22,6 +20,9 @@ public class FlightEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
+    private Long aircraftId;
 
     @Column(nullable = false, updatable = false)
     private String flightNumber;
@@ -38,17 +39,6 @@ public class FlightEntity {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private FlightStatus status;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "aircraft_id")
-    private AircraftEntity aircraft;
-
-    @OneToOne(mappedBy = "flight", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private FlightAmountEntity amount;
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "flight_user")
-    private Set<UserEntity> users = new HashSet<>();
 
     @CreatedDate
     private LocalDateTime createdDate;

@@ -21,8 +21,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.sipahi.airlines.advice.constant.RedisConstant.AIRCRAFT_DETAIL;
-import static com.sipahi.airlines.advice.constant.RedisConstant.AIRCRAFT_LIST;
+import static com.sipahi.airlines.advice.constant.RedisConstant.*;
 
 @Slf4j
 @Service
@@ -46,7 +45,7 @@ public class AircraftService {
                 .build();
     }
 
-    @CacheEvict(value = AIRCRAFT_DETAIL, key = "#request.externalId")
+    @CacheEvict(value = AIRCRAFT_DETAIL_BY_EXTERNAL_ID, key = "#request.externalId")
     public void update(AircraftUpdateRequest request) {
         AircraftEntity aircraftEntity = aircraftRepository.findByExternalId(request.getExternalId())
                 .orElseThrow(AircraftNotFoundException::new);
@@ -71,9 +70,15 @@ public class AircraftService {
                 .collect(Collectors.toList());
     }
 
-    @Cacheable(value = AIRCRAFT_DETAIL, key = "#externalId")
-    public AircraftEntity getDetail(String externalId) {
+    @Cacheable(value = AIRCRAFT_DETAIL_BY_EXTERNAL_ID, key = "#externalId")
+    public AircraftEntity getDetailByExternalId(String externalId) {
         return aircraftRepository.findByExternalId(externalId)
+                .orElseThrow(AircraftNotFoundException::new);
+    }
+
+    @Cacheable(value = AIRCRAFT_DETAIL_BY_ID, key = "#id")
+    public AircraftEntity getDetailById(Long id) {
+        return aircraftRepository.findById(id)
                 .orElseThrow(AircraftNotFoundException::new);
     }
 }

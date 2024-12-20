@@ -59,7 +59,11 @@ public class RedisConfiguration {
                 .entryTtl(Duration.ofMinutes(cacheTimeProperties.getFlightDetailCacheMinute()))
                 .disableCachingNullValues();
 
-        final RedisCacheConfiguration aircraftDetailCache = RedisCacheConfiguration.defaultCacheConfig()
+        final RedisCacheConfiguration aircraftDetailByIdCache = RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofMinutes(cacheTimeProperties.getAircraftDetailCacheMinute()))
+                .disableCachingNullValues();
+
+        final RedisCacheConfiguration aircraftDetailByExternalIdCache = RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofMinutes(cacheTimeProperties.getAircraftDetailCacheMinute()))
                 .disableCachingNullValues();
 
@@ -68,7 +72,8 @@ public class RedisConfiguration {
                 .disableCachingNullValues();
 
         redisCacheConfigurationMap.put(FLIGHT_DETAIL, flightCache);
-        redisCacheConfigurationMap.put(AIRCRAFT_DETAIL, aircraftDetailCache);
+        redisCacheConfigurationMap.put(AIRCRAFT_DETAIL_BY_ID, aircraftDetailByIdCache);
+        redisCacheConfigurationMap.put(AIRCRAFT_DETAIL_BY_EXTERNAL_ID, aircraftDetailByExternalIdCache);
         redisCacheConfigurationMap.put(AIRCRAFT_LIST, aircraftListCache);
         return redisCacheConfigurationMap;
     }

@@ -1,6 +1,7 @@
 package com.sipahi.airlines.persistence.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.sipahi.airlines.enums.FlightStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,4 +26,5 @@ public class FlightDetailDto implements Serializable {
     private LocalDateTime flightDate;
     private FlightAmountDto amount;
     private List<FlightSeatDto> seats;
+    private FlightStatus status;
 }

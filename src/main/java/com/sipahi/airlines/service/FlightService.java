@@ -51,15 +51,15 @@ public class FlightService {
     public FlightCreateResponse create(FlightCreateRequest request) {
         createValidator.validate(request);
         FlightEntity flightEntity = new FlightEntity();
+        flightEntity.setAircraftId(getAircraftId(request.getAircraftId()));
         flightEntity.setFlightNumber(generateFlightNumber());
         flightEntity.setName(request.getName());
         flightEntity.setDescription(request.getDescription());
         flightEntity.setFlightDate(request.getFlightDate());
-        flightEntity.setAircraft(aircraftService.getDetail(request.getAircraftId()));
         flightEntity.setStatus(FlightStatus.CREATED);
         FlightEntity savedFlightEntity = flightRepository.save(flightEntity);
         log.info("Saved new flight: {}", savedFlightEntity.getFlightNumber());
-        flightAmountService.createFlightAmount(savedFlightEntity, request);
+        flightAmountService.createFlightAmount(savedFlightEntity.getId(), request);
         return FlightCreateResponse.builder()
                 .flightNumber(savedFlightEntity.getFlightNumber())
                 .build();
@@ -71,12 +71,13 @@ public class FlightService {
         final FlightEntity flightEntity = flightRepository.findByFlightNumber(request.getFlightNumber())
                 .orElseThrow(FlightNotFoundException::new);
         updateValidator.validate(request, flightEntity);
+        flightEntity.setAircraftId(Optional.ofNullable(request.getAircraftId())
+                .map(this::getAircraftId)
+                .orElse(flightEntity.getAircraftId()));
         flightEntity.setName(Optional.ofNullable(request.getName())
                 .orElse(flightEntity.getName()));
         flightEntity.setDescription(Optional.ofNullable(request.getDescription())
                 .orElse(flightEntity.getDescription()));
-        flightEntity.setAircraft(Optional.ofNullable(aircraftService.getDetail(request.getAircraftId()))
-                .orElse(flightEntity.getAircraft()));
         flightEntity.setFlightDate(Optional.ofNullable(request.getFlightDate())
                 .orElse(flightEntity.getFlightDate()));
         FlightEntity updatedFlightEntity = flightRepository.save(flightEntity);
@@ -110,7 +111,7 @@ public class FlightService {
     @Cacheable(value = FLIGHT_DETAIL, key = "#flightNumber")
     public FlightDetailDto getDetail(String flightNumber) {
         return flightRepository.findByFlightNumber(flightNumber)
-                .filter(flightEntity -> flightEntity.getStatus().equals(FlightStatus.CREATED))
+                .filter(flightEntity -> flightEntity.getStatus().equals(FlightStatus.AVAILABLE))
                 .map(flightConverter::toDetailDto)
                 .orElseThrow(FlightNotFoundException::new);
     }
@@ -127,5 +128,9 @@ public class FlightService {
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
         return flightRepository.findAll(specification, pageable)
                 .map(flightConverter::toDto);
+    }
+
+    private Long getAircraftId(String externalId) {
+        return aircraftService.getDetailByExternalId(externalId).getId();
     }
 }

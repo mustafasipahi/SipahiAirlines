@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 public class RedisConstant {
 
     public static final String FLIGHT_DETAIL = "FlightDetail_";
-    public static final String AIRCRAFT_DETAIL = "AircraftDetail_";
+    public static final String AIRCRAFT_DETAIL_BY_ID = "AircraftDetailById_";
+    public static final String AIRCRAFT_DETAIL_BY_EXTERNAL_ID = "AircraftDetailByExternalId_";
     public static final String AIRCRAFT_LIST = "AircraftList_";
 }

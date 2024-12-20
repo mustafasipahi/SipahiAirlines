@@ -1,12 +1,12 @@
 package com.sipahi.airlines.service;
 
+import com.sipahi.airlines.advice.exception.FlightAmountNotFoundException;
 import com.sipahi.airlines.kafka.producer.FlightAmountProducer;
 import com.sipahi.airlines.persistence.model.event.FlightAmountCreateEvent;
 import com.sipahi.airlines.persistence.model.event.FlightAmountUpdateEvent;
 import com.sipahi.airlines.persistence.model.request.FlightCreateRequest;
 import com.sipahi.airlines.persistence.model.request.FlightUpdateRequest;
 import com.sipahi.airlines.persistence.mysql.entity.FlightAmountEntity;
-import com.sipahi.airlines.persistence.mysql.entity.FlightEntity;
 import com.sipahi.airlines.persistence.mysql.repository.FlightAmountRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ public class FlightAmountService {
         FlightAmountEntity flightAmountEntity = new FlightAmountEntity();
         flightAmountEntity.setEconomy(event.getEconomyAmount());
         flightAmountEntity.setVip(event.getVipAmount());
-        flightAmountEntity.setFlight(event.getFlight());
+        flightAmountEntity.setFlightId(event.getFlightId());
         flightAmountRepository.save(flightAmountEntity);
     }
 
@@ -39,11 +39,11 @@ public class FlightAmountService {
     }
 
     @Transactional
-    public void createFlightAmount(FlightEntity savedFlightEntity, FlightCreateRequest request) {
+    public void createFlightAmount(Long flightId, FlightCreateRequest request) {
         FlightAmountCreateEvent event = FlightAmountCreateEvent.builder()
                 .vipAmount(request.getVipAmount())
                 .economyAmount(request.getEconomyAmount())
-                .flight(savedFlightEntity)
+                .flightId(flightId)
                 .build();
         flightAmountProducer.sendFlightAmountCreateEvent(event);
     }
@@ -56,5 +56,10 @@ public class FlightAmountService {
                 .flightId(updatedFlightId)
                 .build();
         flightAmountProducer.sendFlightAmountUpdateEvent(event);
+    }
+
+    public FlightAmountEntity findByFlightId(Long flightId) {
+        return flightAmountRepository.findByFlightId(flightId)
+                .orElseThrow(FlightAmountNotFoundException::new);
     }
 }

@@ -13,8 +13,8 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
-    @PostMapping
-    public void buySeat(@RequestBody BuySeatRequest request, @ModelAttribute TestAccountType accountType) {
+    @PostMapping("/{accountType}")
+    public void buySeat(@RequestBody BuySeatRequest request, @PathVariable TestAccountType accountType) {
         paymentService.buySeat(request, accountType);
     }
 }

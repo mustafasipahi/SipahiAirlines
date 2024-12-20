@@ -8,8 +8,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -32,9 +30,6 @@ public class UserEntity {
 
     @Column(nullable = false)
     private String email;
-
-    @ManyToMany(mappedBy = "users")
-    private Set<FlightEntity> flights = new HashSet<>();
 
     @CreatedDate
     private LocalDateTime createdDate;

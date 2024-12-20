@@ -19,12 +19,11 @@ public class FlightAmountEntity {
     private Long id;
 
     @Column(nullable = false)
+    private Long flightId;
+
+    @Column(nullable = false)
     private BigDecimal economy;
 
     @Column(nullable = false)
     private BigDecimal vip;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "flight_id")
-    private FlightEntity flight;
 }

@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Predicate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FlightSpecification {
@@ -25,6 +25,7 @@ public class FlightSpecification {
                 predicates.add(criteriaBuilder.equal(root.get("flightNumber"), request.getFlightNumber()));
             }
             predicates.add(criteriaBuilder.equal(root.get("status"), FlightStatus.AVAILABLE));
+            predicates.add(criteriaBuilder.greaterThan(root.get("flightDate"), LocalDateTime.now()));
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }

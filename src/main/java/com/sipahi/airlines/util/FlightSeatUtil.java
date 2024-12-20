@@ -6,7 +6,6 @@ import com.sipahi.airlines.persistence.model.dto.FlightSeatDto;
 import com.sipahi.airlines.persistence.mongo.document.FlightSeatDocument;
 import com.sipahi.airlines.persistence.mysql.entity.AircraftEntity;
 import com.sipahi.airlines.persistence.mysql.entity.FlightAmountEntity;
-import com.sipahi.airlines.persistence.mysql.entity.FlightEntity;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
@@ -17,9 +16,9 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FlightSeatUtil {
 
-    public static List<FlightSeatDto> getAvailableSeats(FlightEntity entity, List<FlightSeatDocument> flightSeats) {
-        AircraftEntity aircraft = entity.getAircraft();
-        FlightAmountEntity amount = entity.getAmount();
+    public static List<FlightSeatDto> getAvailableSeats(AircraftEntity aircraft,
+                                                        FlightAmountEntity amount,
+                                                        List<FlightSeatDocument> flightSeats) {
         String[] seatLetters = getSeatName(aircraft.getSeatsPerRow());
         List<FlightSeatDto> seats = new ArrayList<>();
         addVipSeats(aircraft, amount, seats, seatLetters, flightSeats);
