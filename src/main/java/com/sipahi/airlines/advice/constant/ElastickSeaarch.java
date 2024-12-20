@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 public class ElastickSeaarch {
 
     public static final String FLIGHT_INDEX = "flight";
-    public static final String FLIGHT_NAME = "flightName";
+    public static final String FLIGHT_NUMBER = "flightNumber";
     public static final String FLIGHT_DATE = "flightDate";
     public static final int DEFAULT_SEARCH_SIZE = 20;
 }

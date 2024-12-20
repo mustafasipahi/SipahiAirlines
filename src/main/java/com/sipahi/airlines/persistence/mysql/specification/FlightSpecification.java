@@ -18,9 +18,6 @@ public class FlightSpecification {
     public static Specification<FlightEntity> filter(FlightSearchRequest request) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
-            if (request.getFlightName() != null) {
-                predicates.add(criteriaBuilder.like(root.get("name"), "%" + request.getFlightName() + "%"));
-            }
             if (request.getFlightNumber() != null) {
                 predicates.add(criteriaBuilder.equal(root.get("flightNumber"), request.getFlightNumber()));
             }

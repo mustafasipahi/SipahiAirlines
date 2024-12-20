@@ -12,7 +12,5 @@ import org.springframework.stereotype.Component;
 public class ElasticSearchProperties {
 
     private String host;
-    private String username;
-    private String password;
-    private String scheme;
+    private Integer port;
 }

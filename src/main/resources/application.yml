@@ -35,10 +35,8 @@ kafka:
   address: localhost:9093
 
 elasticsearch:
-  host: localhost:9200
-  username: ""
-  password: ""
-  scheme: http
+  host: localhost
+  port: 9200
 
 cache-time:
   flightDetailCacheMinute: 10

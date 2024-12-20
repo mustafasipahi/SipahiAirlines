@@ -2,6 +2,7 @@ package com.sipahi.airlines.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.IndexRequest;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
@@ -14,12 +15,15 @@ import com.sipahi.airlines.persistence.model.request.FlightSearchRequest;
 import com.sipahi.airlines.persistence.mysql.entity.FlightEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.sipahi.airlines.advice.constant.ElastickSeaarch.*;
@@ -47,9 +51,10 @@ public class ElasticSearchService {
 
     public List<FlightDto> search(FlightSearchRequest request) {
         try {
+            Query query = getQuery(request);
             SearchRequest searchRequest = SearchRequest.of(s -> s
                     .index(FLIGHT_INDEX)
-                    .query(q -> q.matchPhrasePrefix(mp -> mp.field(FLIGHT_NAME).query(request.getFlightName())))
+                    .query(query)
                     .sort(so -> so.field(f -> f.field(FLIGHT_DATE).order(SortOrder.Desc)))
                     .size(DEFAULT_SEARCH_SIZE)
                     .source(ss -> ss.fetch(true)));
@@ -66,14 +71,19 @@ public class ElasticSearchService {
         }
     }
 
+    private Query getQuery(FlightSearchRequest request) {
+        if (StringUtils.isBlank(request.getFlightNumber())) {
+            return Query.of(q -> q.matchAll(ma -> ma));
+        }
+        return Query.of(q -> q.matchPhrasePrefix(mp -> mp.field(FLIGHT_NUMBER).query(request.getFlightNumber())));
+    }
+
     private FlightDto constructUserDto(Map<String, Object> elasticResultMap) {
         try {
             return FlightDto.builder()
                     .flightNumber((String) elasticResultMap.get("flightNumber"))
                     .name((String) elasticResultMap.get("name"))
                     .description((String) elasticResultMap.get("description"))
-                    .flightDate(elasticResultMap.containsKey("flightDate") ?
-                            LocalDateTime.parse((String) elasticResultMap.get("flightDate")) : null)
                     .status(elasticResultMap.containsKey("status") ?
                             FlightStatus.valueOf((String) elasticResultMap.get("status")) : null)
                     .build();

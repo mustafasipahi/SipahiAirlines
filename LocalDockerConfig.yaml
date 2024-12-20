@@ -53,6 +53,9 @@ docker run --name my-kafka \
 docker run --name my-elasticsearch \
 -e "discovery.type=single-node" \
 -e "ELASTIC_PASSWORD=changeme" \
+-e "xpack.security.enabled=false" \
+-e "xpack.security.transport.ssl.enabled=false" \
+-e "http.port=9200" \
 -p 9200:9200 \
 -p 9300:9300 \
 -d docker.elastic.co/elasticsearch/elasticsearch:8.10.2

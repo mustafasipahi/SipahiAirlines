@@ -8,6 +8,5 @@ import lombok.*;
 @AllArgsConstructor
 public class FlightSearchRequest {
 
-    private String flightName;
     private String flightNumber;
 }

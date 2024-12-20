@@ -1,5 +1,6 @@
 package com.sipahi.airlines.commandline;
 
+import com.sipahi.airlines.configuration.properties.ElasticSearchProperties;
 import com.sipahi.airlines.enums.AircraftStatus;
 import com.sipahi.airlines.enums.FlightStatus;
 import com.sipahi.airlines.enums.TestAccountType;
@@ -11,8 +12,14 @@ import com.sipahi.airlines.persistence.mysql.entity.FlightEntity;
 import com.sipahi.airlines.persistence.mysql.repository.AircraftRepository;
 import com.sipahi.airlines.persistence.mysql.repository.FlightAmountRepository;
 import com.sipahi.airlines.persistence.mysql.repository.FlightRepository;
+import com.sipahi.airlines.service.ElasticSearchService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpHost;
+import org.elasticsearch.client.Request;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -36,15 +43,18 @@ public class DataLoader implements CommandLineRunner {
 
     private final RedisConnectionFactory redisConnectionFactory;
     private final MongoTemplate mongoTemplate;
+    private final ElasticSearchProperties elasticSearchProperties;
     private final AircraftRepository aircraftRepository;
     private final AccountRepository accountRepository;
     private final FlightRepository flightRepository;
     private final FlightAmountRepository flightAmountRepository;
+    private final ElasticSearchService elasticSearchService;
 
     @Override
     public void run(String... args) {
         flushRedis();
         flushMongo();
+        flushElasticSearch();
         List<AircraftEntity> aircraftList = saveAircraft();
         List<FlightEntity> flightEntities = saveFlight(aircraftList);
         saveFlightAmount(flightEntities);
@@ -66,6 +76,24 @@ public class DataLoader implements CommandLineRunner {
             log.info("Mongo has been cleared!");
         } catch (Exception e) {
             log.error("Failed to clear Mongo database", e);
+        }
+    }
+
+    private void flushElasticSearch() {
+        HttpHost httpHost = new HttpHost(elasticSearchProperties.getHost(), elasticSearchProperties.getPort(), "http");
+        RestClientBuilder clientBuilder = RestClient.builder(httpHost);
+        try (RestClient client = clientBuilder.build()) {
+            Request listIndicesRequest = new Request("GET", "/_cat/indices?h=index");
+            Response listIndicesResponse = client.performRequest(listIndicesRequest);
+            String indices = new String(listIndicesResponse.getEntity().getContent().readAllBytes());
+            String[] indexList = indices.split("\n");
+            for (String index : indexList) {
+                Request deleteRequest = new Request("DELETE", "/" + index);
+                client.performRequest(deleteRequest);
+            }
+            log.info("Elastic Search has been cleared!");
+        } catch (Exception e) {
+            log.error("Failed to clear Elastic Search database", e);
         }
     }
 
@@ -122,7 +150,9 @@ public class DataLoader implements CommandLineRunner {
         flightEntity3.setStatus(FlightStatus.AVAILABLE);
         flightEntity3.setAircraftId(randomAircraftId(aircraftList));
         flightRepository.deleteAll();
-        return flightRepository.saveAll(Arrays.asList(flightEntity1, flightEntity2, flightEntity3));
+        List<FlightEntity> flightEntities = flightRepository.saveAll(Arrays.asList(flightEntity1, flightEntity2, flightEntity3));
+        flightEntities.forEach(elasticSearchService::saveFlightEvent);
+        return flightEntities;
     }
 
     private void saveFlightAmount(List<FlightEntity> flightEntityList) {
