@@ -18,7 +18,7 @@ public class FlightSearchController {
 
     private final ElasticSearchService elasticSearchService;
 
-    @GetMapping("/search")
+    @GetMapping
     public List<FlightDto> search(@ModelAttribute FlightSearchRequest request) {
         return elasticSearchService.search(request);
     }
