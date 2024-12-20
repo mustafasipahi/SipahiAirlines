@@ -3,15 +3,12 @@ package com.sipahi.airlines.service;
 import com.sipahi.airlines.advice.exception.FlightNotFoundException;
 import com.sipahi.airlines.converter.FlightConverter;
 import com.sipahi.airlines.enums.FlightStatus;
-import com.sipahi.airlines.persistence.mysql.entity.FlightEntity;
 import com.sipahi.airlines.persistence.model.dto.FlightDetailDto;
-import com.sipahi.airlines.persistence.model.dto.FlightDto;
 import com.sipahi.airlines.persistence.model.request.FlightCreateRequest;
-import com.sipahi.airlines.persistence.model.request.FlightSearchRequest;
 import com.sipahi.airlines.persistence.model.request.FlightUpdateRequest;
 import com.sipahi.airlines.persistence.model.response.FlightCreateResponse;
+import com.sipahi.airlines.persistence.mysql.entity.FlightEntity;
 import com.sipahi.airlines.persistence.mysql.repository.FlightRepository;
-import com.sipahi.airlines.persistence.mysql.specification.FlightSpecification;
 import com.sipahi.airlines.validator.FlightActivateValidator;
 import com.sipahi.airlines.validator.FlightCreateValidator;
 import com.sipahi.airlines.validator.FlightDeleteValidator;
@@ -20,11 +17,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +34,8 @@ public class FlightService {
     private final AircraftService aircraftService;
     private final FlightConverter flightConverter;
     private final FlightAmountService flightAmountService;
+    private final ElasticSearchService elasticSearchService;
+
     private final FlightCreateValidator createValidator;
     private final FlightUpdateValidator updateValidator;
     private final FlightDeleteValidator deleteValidator;
@@ -60,6 +54,7 @@ public class FlightService {
         FlightEntity savedFlightEntity = flightRepository.save(flightEntity);
         log.info("Saved new flight: {}", savedFlightEntity.getFlightNumber());
         flightAmountService.createFlightAmount(savedFlightEntity.getId(), request);
+        elasticSearchService.saveFlightEvent(flightEntity);
         return FlightCreateResponse.builder()
                 .flightNumber(savedFlightEntity.getFlightNumber())
                 .build();
@@ -83,7 +78,7 @@ public class FlightService {
         FlightEntity updatedFlightEntity = flightRepository.save(flightEntity);
         log.info("Updated flight: {}", updatedFlightEntity.getFlightNumber());
         flightAmountService.updateFlightAmount(updatedFlightEntity.getId(), request);
-
+        elasticSearchService.saveFlightEvent(flightEntity);
     }
 
     @Transactional
@@ -120,14 +115,6 @@ public class FlightService {
     public FlightEntity getLockedDetail(String flightNumber) {
         return flightRepository.findByFlightNumberForWrite(flightNumber, FlightStatus.AVAILABLE)
                 .orElseThrow(FlightNotFoundException::new);
-    }
-
-    public Page<FlightDto> getAll(FlightSearchRequest request) {
-        Specification<FlightEntity> specification = FlightSpecification.filter(request);
-        Sort sort = Sort.by(request.getDirection(), request.getSort());
-        Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
-        return flightRepository.findAll(specification, pageable)
-                .map(flightConverter::toDto);
     }
 
     private Long getAircraftId(String externalId) {

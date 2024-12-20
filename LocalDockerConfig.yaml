@@ -1,0 +1,58 @@
+#Delete
+docker stop kafka
+docker rm kafka
+
+
+#Mysql
+docker run --name my-mysql \
+-e MYSQL_ROOT_PASSWORD=test \
+-e MYSQL_DATABASE=airlines \
+-e MYSQL_USER=test \
+-e MYSQL_PASSWORD=test \
+-p 3306:3306 \
+-d mysql:latest
+
+
+#Redis
+docker run --name my-redis \
+-p 6379:6379 \
+-d redis:latest
+
+
+#Mongo
+docker run --name my-mongo \
+-e MONGO_INITDB_ROOT_USERNAME=mongoadmin \
+-e MONGO_INITDB_ROOT_PASSWORD=secret \
+-p 27017:27017 \
+-d mongo:latest
+
+
+#Docker
+docker network create kafka-network
+
+docker run --name my-zookeeper \
+-e ZOOKEEPER_CLIENT_PORT=2181 \
+-e ZOOKEEPER_TICK_TIME=2000 \
+-e ZOOKEEPER_SYNC_LIMIT=2 \
+-p 2181:2181 \
+--network kafka-network \
+-d wurstmeister/zookeeper:3.4.6
+
+docker run --name my-kafka \
+-e KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9093 \
+-e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9093 \
+-e KAFKA_LISTENER_SECURITY_PROTOCOL=PLAINTEXT \
+-e KAFKA_LISTENER_INTER_BROKER_PROTOCOL=PLAINTEXT \
+-e KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181 \
+-p 9093:9093 \
+--network kafka-network \
+-d wurstmeister/kafka:latest
+
+  
+#ElasticSearch
+docker run --name my-elasticsearch \
+-e "discovery.type=single-node" \
+-e "ELASTIC_PASSWORD=changeme" \
+-p 9200:9200 \
+-p 9300:9300 \
+-d docker.elastic.co/elasticsearch/elasticsearch:8.10.2

@@ -2,12 +2,11 @@ package com.sipahi.airlines.persistence.model.request;
 
 import lombok.*;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FlightSearchRequest extends BaseSearchRequest {
+public class FlightSearchRequest {
 
     private String flightName;
     private String flightNumber;

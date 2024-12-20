@@ -1,14 +1,11 @@
 package com.sipahi.airlines.controller;
 
 import com.sipahi.airlines.persistence.model.dto.FlightDetailDto;
-import com.sipahi.airlines.persistence.model.dto.FlightDto;
 import com.sipahi.airlines.persistence.model.request.FlightCreateRequest;
-import com.sipahi.airlines.persistence.model.request.FlightSearchRequest;
 import com.sipahi.airlines.persistence.model.request.FlightUpdateRequest;
 import com.sipahi.airlines.persistence.model.response.FlightCreateResponse;
 import com.sipahi.airlines.service.FlightService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -43,10 +40,5 @@ public class FlightController {
     @GetMapping("/{flightNumber}")
     public FlightDetailDto getDetail(@PathVariable String flightNumber) {
         return flightService.getDetail(flightNumber);
-    }
-
-    @GetMapping("/search")
-    public Page<FlightDto> getAll(@ModelAttribute FlightSearchRequest request) {
-        return flightService.getAll(request);
     }
 }

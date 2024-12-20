@@ -15,6 +15,8 @@ public class ErrorCodes {
     public static final int ACCOUNT_NOT_FOUND = 350006;
     public static final int INSUFFICIENT_AMOUNT = 350007;
     public static final int FLIGHT_AMOUNT_NOT_FOUND = 350008;
+    public static final int ELASTIC_SEARCH_ERROR = 350009;
+    public static final int ELASTIC_SEARCH_SAVE_ERROR = 350010;
 
     public static final int VALIDATION_ERROR = 350998;
     public static final int UNKNOWN_ERROR = 350999;

@@ -34,6 +34,12 @@ kafka:
   groupId: airlines-group
   address: localhost:9093
 
+elasticsearch:
+  host: localhost:9200
+  username: ""
+  password: ""
+  scheme: http
+
 cache-time:
   flightDetailCacheMinute: 10
   aircraftDetailCacheMinute: 20
