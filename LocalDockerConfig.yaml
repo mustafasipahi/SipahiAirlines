@@ -43,7 +43,7 @@ docker run --name my-kafka \
 -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9093 \
 -e KAFKA_LISTENER_SECURITY_PROTOCOL=PLAINTEXT \
 -e KAFKA_LISTENER_INTER_BROKER_PROTOCOL=PLAINTEXT \
--e KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181 \
+-e KAFKA_ZOOKEEPER_CONNECT=my-zookeeper:2181 \
 -p 9093:9093 \
 --network kafka-network \
 -d wurstmeister/kafka:latest
