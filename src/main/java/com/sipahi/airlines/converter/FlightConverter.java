@@ -54,6 +54,10 @@ public class FlightConverter {
         }
     }
 
+    public List<FlightSeatDto> toSeats(FlightEntity entity) {
+        return getSeats(entity);
+    }
+
     private List<FlightSeatDto> getSeats(FlightEntity entity) {
         AircraftEntity aircraft = aircraftService.getDetailById(entity.getAircraftId());
         FlightAmountEntity flightAmount = flightAmountService.findByFlightId(entity.getId());

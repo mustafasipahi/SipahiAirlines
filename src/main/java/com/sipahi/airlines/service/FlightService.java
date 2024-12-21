@@ -2,9 +2,12 @@ package com.sipahi.airlines.service;
 
 import com.sipahi.airlines.advice.exception.FlightNotFoundException;
 import com.sipahi.airlines.converter.FlightConverter;
+import com.sipahi.airlines.enums.FlightSeatStatus;
 import com.sipahi.airlines.enums.FlightStatus;
 import com.sipahi.airlines.persistence.model.dto.FlightDetailDto;
+import com.sipahi.airlines.persistence.model.dto.FlightSeatDto;
 import com.sipahi.airlines.persistence.model.request.FlightCreateRequest;
+import com.sipahi.airlines.persistence.model.request.FlightSeatUpdateRequest;
 import com.sipahi.airlines.persistence.model.request.FlightUpdateRequest;
 import com.sipahi.airlines.persistence.model.response.FlightCreateResponse;
 import com.sipahi.airlines.persistence.mysql.entity.FlightEntity;
@@ -20,6 +23,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.sipahi.airlines.advice.constant.RedisConstant.FLIGHT_DETAIL;
@@ -34,6 +38,7 @@ public class FlightService {
     private final AircraftService aircraftService;
     private final FlightConverter flightConverter;
     private final FlightAmountService flightAmountService;
+    private final FlightSeatService flightSeatService;
     private final ElasticSearchService elasticSearchService;
 
     private final FlightCreateValidator createValidator;
@@ -117,6 +122,22 @@ public class FlightService {
     public FlightEntity getLockedDetail(String flightNumber) {
         return flightRepository.findByFlightNumberForWrite(flightNumber, FlightStatus.AVAILABLE)
                 .orElseThrow(FlightNotFoundException::new);
+    }
+
+    public List<FlightSeatDto> getAllFlightSeats(String flightNumber) {
+        return flightRepository.findByFlightNumber(flightNumber)
+                .filter(flightEntity -> flightEntity.getStatus().equals(FlightStatus.AVAILABLE))
+                .map(flightConverter::toSeats)
+                .orElseThrow(FlightNotFoundException::new);
+    }
+
+    @Transactional
+    public void updateFlightSeat(FlightSeatUpdateRequest request, FlightSeatStatus newStatus) {
+        Long flightId = flightRepository.findByFlightNumber(request.getFlightNumber())
+                .map(FlightEntity::getId)
+                .orElseThrow(FlightNotFoundException::new);
+        List<FlightSeatDto> allFlightSeats = getAllFlightSeats(request.getFlightNumber());
+        flightSeatService.updateFlightSeat(request, allFlightSeats, flightId, newStatus);
     }
 
     private Long getAircraftId(String externalId) {
