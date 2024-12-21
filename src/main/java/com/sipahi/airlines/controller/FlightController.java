@@ -32,7 +32,7 @@ public class FlightController {
         flightService.delete(flightNumber);
     }
 
-    @PutMapping("/{flightNumber}")
+    @PutMapping("/activate/{flightNumber}")
     public void activate(@PathVariable String flightNumber) {
         flightService.activate(flightNumber);
     }
