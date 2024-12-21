@@ -1,11 +1,11 @@
 package com.sipahi.airlines.commandline;
 
-import com.sipahi.airlines.configuration.properties.ElasticSearchProperties;
 import com.sipahi.airlines.enums.AircraftStatus;
 import com.sipahi.airlines.enums.FlightStatus;
 import com.sipahi.airlines.enums.TestAccountType;
 import com.sipahi.airlines.persistence.mongo.document.AccountDocument;
 import com.sipahi.airlines.persistence.mongo.repository.AccountRepository;
+import com.sipahi.airlines.persistence.mongo.repository.FlightSeatRepository;
 import com.sipahi.airlines.persistence.mysql.entity.AircraftEntity;
 import com.sipahi.airlines.persistence.mysql.entity.FlightAmountEntity;
 import com.sipahi.airlines.persistence.mysql.entity.FlightEntity;
@@ -15,13 +15,7 @@ import com.sipahi.airlines.persistence.mysql.repository.FlightRepository;
 import com.sipahi.airlines.service.ElasticSearchService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.HttpHost;
-import org.elasticsearch.client.Request;
-import org.elasticsearch.client.Response;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestClientBuilder;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.stereotype.Component;
 
@@ -32,6 +26,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+import static com.sipahi.airlines.advice.constant.ElastickSeaarch.FLIGHT_INDEX;
+import static com.sipahi.airlines.advice.constant.ElastickSeaarch.FLIGHT_NUMBER;
 import static com.sipahi.airlines.util.FlightNumberUtil.generateFlightNumber;
 
 @Slf4j
@@ -42,8 +38,7 @@ public class DataLoader implements CommandLineRunner {
     private static final Random RANDOM = new Random();
 
     private final RedisConnectionFactory redisConnectionFactory;
-    private final MongoTemplate mongoTemplate;
-    private final ElasticSearchProperties elasticSearchProperties;
+    private final FlightSeatRepository flightSeatRepository;
     private final AircraftRepository aircraftRepository;
     private final AccountRepository accountRepository;
     private final FlightRepository flightRepository;
@@ -72,7 +67,8 @@ public class DataLoader implements CommandLineRunner {
 
     private void flushMongo() {
         try {
-            mongoTemplate.getDb().drop();
+            flightSeatRepository.deleteAll();
+            accountRepository.deleteAll();
             log.info("Mongo has been cleared!");
         } catch (Exception e) {
             log.info("Failed to clear Mongo database", e);
@@ -80,21 +76,8 @@ public class DataLoader implements CommandLineRunner {
     }
 
     private void flushElasticSearch() {
-        HttpHost httpHost = new HttpHost(elasticSearchProperties.getHost(), elasticSearchProperties.getPort(), "http");
-        RestClientBuilder clientBuilder = RestClient.builder(httpHost);
-        try (RestClient client = clientBuilder.build()) {
-            Request listIndicesRequest = new Request("GET", "/_cat/indices?h=index");
-            Response listIndicesResponse = client.performRequest(listIndicesRequest);
-            String indices = new String(listIndicesResponse.getEntity().getContent().readAllBytes());
-            String[] indexList = indices.split("\n");
-            for (String index : indexList) {
-                Request deleteRequest = new Request("DELETE", "/" + index);
-                client.performRequest(deleteRequest);
-            }
-            log.info("Elastic Search has been cleared!");
-        } catch (Exception e) {
-            log.info("Failed to clear Elastic Search database", e);
-        }
+        elasticSearchService.deleteAllDocument(FLIGHT_INDEX);
+        elasticSearchService.deleteAllDocument(FLIGHT_NUMBER);
     }
 
     private List<AircraftEntity> saveAircraft() {

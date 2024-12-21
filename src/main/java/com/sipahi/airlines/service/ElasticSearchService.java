@@ -3,9 +3,9 @@ package com.sipahi.airlines.service;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
-import co.elastic.clients.elasticsearch.core.IndexRequest;
-import co.elastic.clients.elasticsearch.core.SearchRequest;
-import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.*;
+import co.elastic.clients.elasticsearch.indices.DeleteIndexRequest;
+import co.elastic.clients.elasticsearch.indices.ExistsRequest;
 import com.sipahi.airlines.advice.exception.ElasticEventSaveException;
 import com.sipahi.airlines.converter.ElasticSearchConverter;
 import com.sipahi.airlines.converter.FlightConverter;
@@ -69,6 +69,15 @@ public class ElasticSearchService {
         } catch (IOException ex) {
             log.error("An error occurred while searching flights: {}", request, ex);
             return Collections.emptyList();
+        }
+    }
+
+    public void deleteAllDocument(String indexName) {
+        try {
+            boolean exists = elasticsearchClient.indices().exists(ExistsRequest.of(s -> s.index(indexName))).value();
+            if (exists) elasticsearchClient.indices().delete(DeleteIndexRequest.of(s -> s.index(indexName)));
+        } catch (IOException e) {
+            log.info("An error occurred while delete all", e);
         }
     }
 
