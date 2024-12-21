@@ -85,8 +85,6 @@ services:
       MONGO_HOST: my-mongo
       MONGO_PORT: 27017
       MONGO_DATABASE: airlines
-      MONGO_INITDB_ROOT_USERNAME: mongoadmin
-      MONGO_INITDB_ROOT_PASSWORD: secret
     ports:
       - "27017:27017"
     networks:
