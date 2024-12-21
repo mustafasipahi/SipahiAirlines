@@ -32,7 +32,7 @@ docker run --name my-mongo \
 -d mongo:latest
 
 
-#Docker
+#Kafka
 docker network create kafka-network
 
 docker run --name my-zookeeper \
