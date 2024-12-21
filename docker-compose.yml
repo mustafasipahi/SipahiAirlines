@@ -1,40 +1,178 @@
-version: '3'
+version: '3.8'
 services:
 
-  zookeeper:
-    container_name: zookeeper
-    image: bitnami/zookeeper:latest
-    restart: always
+  sipahi_airlines_app:
+    image: sipahi_airlines_app
+    container_name: sipahi_airlines_app
+    build: ./
     environment:
-      ALLOW_ANONYMOUS_LOGIN: yes
+      MYSQL_HOST: my-mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: airlines
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test
+      REDIS_HOST: my-redis
+      REDIS_PORT: 6379
+      MONGO_USER: mongoadmin
+      MONGO_PASSWORD: secret
+      MONGO_HOST: my-mongo
+      MONGO_PORT: 27017
+      MONGO_DATABASE: airlines
+      KAFKA_HOST: my-kafka
+      KAFKA_PORT: 9093
+      KAFKA_GROUP_ID: airlines-group
+      ELASTICSEARCH_HOST: my-elasticsearch
+      ELASTICSEARCH_PORT: 9200
+    ports:
+      - "8080:8080"
+    networks:
+      - my-network
+    restart: always
+    depends_on:
+      my-mysql:
+        condition: service_healthy
+      my-redis:
+        condition: service_healthy
+      my-mongo:
+        condition: service_healthy
+      my-kafka:
+        condition: service_healthy
+      my-elasticsearch:
+        condition: service_healthy
+
+  my-mysql:
+    image: mysql:latest
+    container_name: my-mysql
+    environment:
+      MYSQL_HOST: my-mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: airlines
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test
+      MYSQL_ROOT_PASSWORD: test
+    ports:
+      - "3306:3306"
+    networks:
+      - my-network
+    restart: always
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "test", "-ptest" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  my-redis:
+    image: redis:latest
+    container_name: my-redis
+    environment:
+      REDIS_HOST: my-redis
+      REDIS_PORT: 6379
+    ports:
+      - "6379:6379"
+    networks:
+      - my-network
+    restart: always
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  my-mongo:
+    image: mongo:latest
+    container_name: my-mongo
+    environment:
+      MONGO_USER: mongoadmin
+      MONGO_PASSWORD: secret
+      MONGO_HOST: my-mongo
+      MONGO_PORT: 27017
+      MONGO_DATABASE: airlines
+      MONGO_INITDB_ROOT_USERNAME: mongoadmin
+      MONGO_INITDB_ROOT_PASSWORD: secret
+    ports:
+      - "27017:27017"
+    networks:
+      - my-network
+    restart: always
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  my-zookeeper:
+    image: wurstmeister/zookeeper:3.4.6
+    container_name: my-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_SYNC_LIMIT: 2
     ports:
       - "2181:2181"
     networks:
-      - app-network
-
-  kafka:
-    container_name: kafka
-    image: bitnami/kafka:latest
+      - my-network
     restart: always
+    healthcheck:
+      test: [ "CMD", "echo", "status" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  my-kafka:
+    image: wurstmeister/kafka:latest
+    container_name: my-kafka
     environment:
-      KAFKA_CFG_NODE_ID: 0
-      KAFKA_CFG_PROCESS_ROLES: controller,broker
-      KAFKA_CFG_LISTENERS: INSIDE_KAFKA://0.0.0.0:9093,CONTROLLER://:9094  # KAFKA_LISTENERS parametresi
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 0@kafka:9094
-      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://my-kafka:9093
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9093
       KAFKA_LISTENER_SECURITY_PROTOCOL: PLAINTEXT
-      KAFKA_LISTENERS: INSIDE_KAFKA://0.0.0.0:9093  # Bu ayar container'ın dinleyeceği portu belirtir
-      KAFKA_ADVERTISED_LISTENERS: INSIDE_KAFKA://kafka:9093  # Bu, client'ların kullanacağı adresi belirtir
+      KAFKA_LISTENER_INTER_BROKER_PROTOCOL: PLAINTEXT
+      KAFKA_ZOOKEEPER_CONNECT: my-zookeeper:2181
+      KAFKA_HOST: my-kafka
+      KAFKA_PORT: 9093
+      KAFKA_GROUP_ID: airlines-group
     ports:
-      - "9092:9092"  # Dış port
-      - "9093:9093"  # Kafka'nın INSIDE_KAFKA adresi için
-    depends_on:
-      - zookeeper
+      - "9093:9093"
     networks:
-      - app-network
+      - my-network
+    restart: always
+    depends_on:
+      my-zookeeper:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "kafka-topics.sh", "--zookeeper", "my-zookeeper:2181", "--list" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  my-elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
+    container_name: my-elasticsearch
+    environment:
+      discovery.type: single-node
+      ELASTIC_PASSWORD: changeme
+      xpack.security.enabled: "false"
+      xpack.security.transport.ssl.enabled: "false"
+      http.port: 9200
+      ELASTICSEARCH_HOST: my-elasticsearch
+      ELASTICSEARCH_PORT: 9200
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - my-network
+    restart: always
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9200/_cat/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
 
 networks:
-  app-network:
+  my-network:
     driver: bridge

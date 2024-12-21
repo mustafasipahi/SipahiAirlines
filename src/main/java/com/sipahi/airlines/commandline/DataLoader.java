@@ -66,7 +66,7 @@ public class DataLoader implements CommandLineRunner {
             redisConnectionFactory.getConnection().flushAll();
             log.info("Redis cache has been cleared!");
         } catch (Exception e) {
-            log.error("Failed to clear Redis cache", e);
+            log.info("Failed to clear Redis cache", e);
         }
     }
 
@@ -75,7 +75,7 @@ public class DataLoader implements CommandLineRunner {
             mongoTemplate.getDb().drop();
             log.info("Mongo has been cleared!");
         } catch (Exception e) {
-            log.error("Failed to clear Mongo database", e);
+            log.info("Failed to clear Mongo database", e);
         }
     }
 
@@ -93,7 +93,7 @@ public class DataLoader implements CommandLineRunner {
             }
             log.info("Elastic Search has been cleared!");
         } catch (Exception e) {
-            log.error("Failed to clear Elastic Search database", e);
+            log.info("Failed to clear Elastic Search database", e);
         }
     }
 
