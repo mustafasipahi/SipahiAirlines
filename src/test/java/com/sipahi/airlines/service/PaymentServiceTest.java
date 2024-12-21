@@ -77,7 +77,7 @@ class PaymentServiceTest {
                 () -> paymentService.buySeat(request, TestAccountType.ACCOUNT_1));
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
         assertEquals(ErrorCodes.SEAT_NOT_FOUND, exception.getCode());
-        assertEquals("Seat Available Found!", exception.getMessage());
+        assertEquals("Seat Not Available!", exception.getMessage());
     }
 
     @Test
