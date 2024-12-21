@@ -22,6 +22,7 @@ public class FlightSeatDocument {
     private String id;
     private Long flightId;
     private String seatNo;
+    private String ticketNo;
     @Field(targetType = FieldType.STRING)
     private FlightSeatStatus flightSeatStatus;
     @CreatedDate

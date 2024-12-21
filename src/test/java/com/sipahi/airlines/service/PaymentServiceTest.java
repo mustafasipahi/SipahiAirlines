@@ -124,6 +124,7 @@ class PaymentServiceTest {
 
         FlightEntity flight = new FlightEntity();
         flight.setId(RandomUtils.nextLong());
+        flight.setFlightNumber(RandomStringUtils.randomNumeric(3));
 
         AircraftEntity aircraft = new AircraftEntity();
         aircraft.setEconomyRowCount(5);
@@ -145,7 +146,7 @@ class PaymentServiceTest {
 
         paymentService.buySeat(request, TestAccountType.ACCOUNT_1);
 
-        verify(flightSeatService).saveForBuy(flight.getId(), request.getSeatNo());
+        verify(flightSeatService).saveForBuy(flight.getId(), flight.getFlightNumber(), request.getSeatNo());
         verify(accountService).updateAccount(account.getId(), account.getAmount().subtract(flightAmount.getEconomy()));
     }
 }

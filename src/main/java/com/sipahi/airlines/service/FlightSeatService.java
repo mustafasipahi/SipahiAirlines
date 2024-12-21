@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.sipahi.airlines.util.TicketUtil.generateTicketNo;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -21,12 +23,14 @@ public class FlightSeatService {
     private final FlightSeatRepository flightSeatRepository;
 
     @Transactional
-    public void saveForBuy(Long flightId, String seatNo) {
+    public String saveForBuy(Long flightId, String flightNumber, String seatNo) {
         FlightSeatDocument flightSeatDocument = new FlightSeatDocument();
         flightSeatDocument.setFlightId(flightId);
         flightSeatDocument.setSeatNo(seatNo);
         flightSeatDocument.setFlightSeatStatus(FlightSeatStatus.SOLD);
+        flightSeatDocument.setTicketNo(generateTicketNo(flightNumber, seatNo));
         flightSeatRepository.save(flightSeatDocument);
+        return flightSeatDocument.getTicketNo();
     }
 
     public void updateFlightSeat(FlightSeatUpdateRequest request,

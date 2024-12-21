@@ -7,6 +7,7 @@ import com.sipahi.airlines.enums.TestAccountType;
 import com.sipahi.airlines.persistence.model.dto.AccountDto;
 import com.sipahi.airlines.persistence.model.dto.FlightSeatDto;
 import com.sipahi.airlines.persistence.model.request.BuySeatRequest;
+import com.sipahi.airlines.persistence.model.response.PaymentResponse;
 import com.sipahi.airlines.persistence.mongo.document.FlightSeatDocument;
 import com.sipahi.airlines.persistence.mysql.entity.AircraftEntity;
 import com.sipahi.airlines.persistence.mysql.entity.FlightAmountEntity;
@@ -36,15 +37,18 @@ public class PaymentService {
 
     @Transactional
     @CacheEvict(value = FLIGHT_DETAIL, key = "#request.flightNumber")
-    public void buySeat(BuySeatRequest request, TestAccountType accountType) {
+    public PaymentResponse buySeat(BuySeatRequest request, TestAccountType accountType) {
         FlightEntity flight = flightService.getLockedDetail(request.getFlightNumber());
         List<FlightSeatDocument> flightSeats = flightSeatService.getFlightSeats(flight.getId());
         FlightSeatDto flightSeatDto = getFlightSeatDto(flight, flightSeats, request.getSeatNo());
         AccountDto account = accountService.getAccount(accountType);
         validateAmount(account.getAmount(), flightSeatDto.getAmount());
-        flightSeatService.saveForBuy(flight.getId(), request.getSeatNo());
+        String ticketNo = flightSeatService.saveForBuy(flight.getId(), flight.getFlightNumber(), request.getSeatNo());
         accountService.updateAccount(account.getId(), account.getAmount().subtract(flightSeatDto.getAmount()));
-        log.info("Bought seat: {} for flight: {}", request.getSeatNo(), flight.getId());
+        log.info("Bought seat: {} for flight: {} ticketNo: {}", request.getSeatNo(), flight.getId(), ticketNo);
+        return PaymentResponse.builder()
+                .ticketNo(ticketNo)
+                .build();
     }
 
     private FlightSeatDto getFlightSeatDto(FlightEntity flight, List<FlightSeatDocument> flightSeats, String seatNo) {
