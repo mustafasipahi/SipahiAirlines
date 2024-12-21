@@ -4,7 +4,7 @@ Run with:
 docker-compose up -d
 
 Access via:
-http://localhost:8080/swagger-ui.html
+http://localhost:8080/swagger-ui/index.html
 
 Technologies:
 - Java 11, Spring Boot
