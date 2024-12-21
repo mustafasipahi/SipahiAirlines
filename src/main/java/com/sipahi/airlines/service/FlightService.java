@@ -53,7 +53,7 @@ public class FlightService {
         flightEntity.setStatus(FlightStatus.CREATED);
         FlightEntity savedFlightEntity = flightRepository.save(flightEntity);
         flightAmountService.createFlightAmount(savedFlightEntity.getId(), request);
-        elasticSearchService.saveFlightEvent(flightEntity);
+        elasticSearchService.saveFlightEvent(savedFlightEntity);
         log.info("Saved new flight: {}", savedFlightEntity.getFlightNumber());
         return FlightCreateResponse.builder()
                 .flightNumber(savedFlightEntity.getFlightNumber())
@@ -77,7 +77,7 @@ public class FlightService {
                 .orElse(flightEntity.getFlightDate()));
         FlightEntity updatedFlightEntity = flightRepository.save(flightEntity);
         flightAmountService.updateFlightAmount(updatedFlightEntity.getId(), request);
-        elasticSearchService.saveFlightEvent(flightEntity);
+        elasticSearchService.saveFlightEvent(updatedFlightEntity);
         log.info("Updated flight: {}", updatedFlightEntity.getFlightNumber());
     }
 
@@ -89,7 +89,7 @@ public class FlightService {
         deleteValidator.validate(flightEntity);
         flightEntity.setStatus(FlightStatus.DELETED);
         FlightEntity deletedFlightEntity = flightRepository.save(flightEntity);
-        elasticSearchService.saveFlightEvent(flightEntity);
+        elasticSearchService.saveFlightEvent(deletedFlightEntity);
         log.info("Deleted flight: {}", deletedFlightEntity.getFlightNumber());
     }
 
@@ -100,7 +100,7 @@ public class FlightService {
         activateValidator.validate(flightEntity);
         flightEntity.setStatus(FlightStatus.AVAILABLE);
         FlightEntity activatedFlightEntity = flightRepository.save(flightEntity);
-        elasticSearchService.saveFlightEvent(flightEntity);
+        elasticSearchService.saveFlightEvent(activatedFlightEntity);
         log.info("Activated flight: {}", activatedFlightEntity.getFlightNumber());
     }
 

@@ -52,8 +52,8 @@ public class PaymentService {
         FlightAmountEntity flightAmount = flightAmountService.findByFlightId(flight.getId());
         List<FlightSeatDto> availableSeats = getAvailableSeats(aircraft, flightAmount, flightSeats);
         return availableSeats.stream()
-                .filter(seatDocument -> seatDocument.getSeatNo().equals(seatNo))
-                .filter(seatDocument -> seatDocument.getStatus().equals(FlightSeatStatus.AVAILABLE))
+                .filter(availableSeat -> availableSeat.getSeatNo().equals(seatNo))
+                .filter(availableSeat -> availableSeat.getStatus().equals(FlightSeatStatus.AVAILABLE))
                 .findFirst()
                 .orElseThrow(SeatAvailableFoundException::new);
     }

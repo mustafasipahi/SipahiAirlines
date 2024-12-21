@@ -1,6 +1,6 @@
 package com.sipahi.airlines.converter;
 
-import com.sipahi.airlines.persistence.model.dto.FlightAmountDto;
+import com.sipahi.airlines.enums.FlightStatus;
 import com.sipahi.airlines.persistence.model.dto.FlightDetailDto;
 import com.sipahi.airlines.persistence.model.dto.FlightDto;
 import com.sipahi.airlines.persistence.model.dto.FlightSeatDto;
@@ -13,10 +13,13 @@ import com.sipahi.airlines.service.FlightAmountService;
 import com.sipahi.airlines.service.FlightSeatService;
 import com.sipahi.airlines.util.FlightSeatUtil;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 
+@Slf4j
 @Component
 @AllArgsConstructor
 public class FlightConverter {
@@ -36,23 +39,19 @@ public class FlightConverter {
                 .build();
     }
 
-    public FlightDto toDto(FlightEntity entity) {
-        return FlightDto.builder()
-                .flightNumber(entity.getFlightNumber())
-                .name(entity.getName())
-                .description(entity.getDescription())
-                .flightDate(entity.getFlightDate())
-                .amount(getAmounts(entity.getId()))
-                .status(entity.getStatus())
-                .build();
-    }
-
-    private FlightAmountDto getAmounts(Long flightId) {
-        FlightAmountEntity flightAmount = flightAmountService.findByFlightId(flightId);
-        return FlightAmountDto.builder()
-                .economy(flightAmount.getEconomy())
-                .vip(flightAmount.getVip())
-                .build();
+    public FlightDto constructDto(Map<String, Object> elasticResultMap) {
+        try {
+            return FlightDto.builder()
+                    .flightNumber((String) elasticResultMap.get("flightNumber"))
+                    .name((String) elasticResultMap.get("name"))
+                    .description((String) elasticResultMap.get("description"))
+                    .status(elasticResultMap.containsKey("status") ?
+                            FlightStatus.valueOf((String) elasticResultMap.get("status")) : null)
+                    .build();
+        } catch (Exception e) {
+            log.error("Error while constructing FlightDto from result map: {}", elasticResultMap, e);
+            throw new IllegalStateException("Failed to construct FlightDto", e);
+        }
     }
 
     private List<FlightSeatDto> getSeats(FlightEntity entity) {

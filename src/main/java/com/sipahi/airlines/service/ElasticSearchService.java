@@ -8,7 +8,7 @@ import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import com.sipahi.airlines.advice.exception.ElasticEventSaveException;
 import com.sipahi.airlines.converter.ElasticSearchConverter;
-import com.sipahi.airlines.enums.FlightStatus;
+import com.sipahi.airlines.converter.FlightConverter;
 import com.sipahi.airlines.persistence.model.dto.FlightDto;
 import com.sipahi.airlines.persistence.model.event.FlightElasticSearchEvent;
 import com.sipahi.airlines.persistence.model.request.FlightSearchRequest;
@@ -34,6 +34,7 @@ import static com.sipahi.airlines.advice.constant.ElastickSeaarch.*;
 public class ElasticSearchService {
 
     private final ElasticsearchClient elasticsearchClient;
+    private final FlightConverter flightConverter;
 
     public void saveFlightEvent(FlightEntity flightEntity) {
         FlightElasticSearchEvent elasticEvent = ElasticSearchConverter.toEvent(flightEntity);
@@ -62,7 +63,7 @@ public class ElasticSearchService {
             return searchResponse.hits().hits()
                     .stream()
                     .filter(hit -> Objects.nonNull(hit.source()))
-                    .map(hit -> constructUserDto(hit.source()))
+                    .map(hit -> flightConverter.constructDto(hit.source()))
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
         } catch (IOException ex) {
@@ -76,20 +77,5 @@ public class ElasticSearchService {
             return Query.of(q -> q.matchAll(ma -> ma));
         }
         return Query.of(q -> q.matchPhrasePrefix(mp -> mp.field(FLIGHT_NUMBER).query(request.getFlightNumber())));
-    }
-
-    private FlightDto constructUserDto(Map<String, Object> elasticResultMap) {
-        try {
-            return FlightDto.builder()
-                    .flightNumber((String) elasticResultMap.get("flightNumber"))
-                    .name((String) elasticResultMap.get("name"))
-                    .description((String) elasticResultMap.get("description"))
-                    .status(elasticResultMap.containsKey("status") ?
-                            FlightStatus.valueOf((String) elasticResultMap.get("status")) : null)
-                    .build();
-        } catch (Exception e) {
-            log.error("Error while constructing FlightDto from result map: {}", elasticResultMap, e);
-            throw new IllegalStateException("Failed to construct FlightDto", e);
-        }
     }
 }
