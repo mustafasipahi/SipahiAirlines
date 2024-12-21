@@ -1,6 +1,10 @@
 #Delete
-docker stop kafka
-docker rm kafka
+docker stop $(docker ps -aq)
+docker rm $(docker ps -aq)
+docker rmi $(docker images -q)
+docker network prune -f
+docker volume prune -f
+docker system prune -a --volumes -f
 
 
 #Mysql
