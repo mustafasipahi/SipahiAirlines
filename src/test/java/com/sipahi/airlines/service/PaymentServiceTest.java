@@ -2,7 +2,7 @@ package com.sipahi.airlines.service;
 
 import com.sipahi.airlines.advice.constant.ErrorCodes;
 import com.sipahi.airlines.advice.exception.InsufficientAmountException;
-import com.sipahi.airlines.advice.exception.SeatAvailableFoundException;
+import com.sipahi.airlines.advice.exception.SeatNotAvailableException;
 import com.sipahi.airlines.enums.FlightSeatStatus;
 import com.sipahi.airlines.enums.TestAccountType;
 import com.sipahi.airlines.persistence.model.dto.AccountDto;
@@ -45,7 +45,7 @@ class PaymentServiceTest {
     private AircraftService aircraftService;
 
     @Test
-    void shouldThrowSeatAvailableFoundException() {
+    void shouldThrowSeatNotAvailableException() {
         BuySeatRequest request = BuySeatRequest.builder()
                 .flightNumber(RandomStringUtils.randomNumeric(3))
                 .seatNo("4D")
@@ -72,8 +72,8 @@ class PaymentServiceTest {
         when(aircraftService.getDetailById(flight.getAircraftId())).thenReturn(aircraft);
         when(flightAmountService.findByFlightId(flight.getId())).thenReturn(flightAmount);
 
-        SeatAvailableFoundException exception = assertThrows(
-                SeatAvailableFoundException.class,
+        SeatNotAvailableException exception = assertThrows(
+                SeatNotAvailableException.class,
                 () -> paymentService.buySeat(request, TestAccountType.ACCOUNT_1));
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
         assertEquals(ErrorCodes.SEAT_NOT_FOUND, exception.getCode());

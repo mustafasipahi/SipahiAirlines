@@ -1,6 +1,6 @@
 package com.sipahi.airlines.service;
 
-import com.sipahi.airlines.advice.exception.SeatAvailableFoundException;
+import com.sipahi.airlines.advice.exception.SeatNotAvailableException;
 import com.sipahi.airlines.enums.FlightSeatStatus;
 import com.sipahi.airlines.persistence.model.dto.FlightSeatDto;
 import com.sipahi.airlines.persistence.model.request.FlightSeatUpdateRequest;
@@ -37,7 +37,7 @@ public class FlightSeatService {
                 .filter(flightSeat -> flightSeat.getSeatNo().equalsIgnoreCase(request.getSeatNo()))
                 .filter(flightSeat -> flightSeat.getStatus().equals(FlightSeatStatus.AVAILABLE))
                 .findAny()
-                .orElseThrow(SeatAvailableFoundException::new);
+                .orElseThrow(SeatNotAvailableException::new);
         FlightSeatDocument flightSeatDocument = new FlightSeatDocument();
         flightSeatDocument.setFlightId(flightId);
         flightSeatDocument.setSeatNo(flightSeatDto.getSeatNo());
